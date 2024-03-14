@@ -5,12 +5,12 @@ const path = require('path');
 module.exports = class Product {
     static pathFile = path.resolve('data', 'products.json');
 
-    constructor(title, imageUrl, description, price) {
+    constructor(id, title, imageUrl, description, price) {
+        this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
         this.description = description;
         this.price = price;
-        this.id = Math.random().toString();
     }
 
     // This is a private method that returns a promise with the data from the file
@@ -22,7 +22,15 @@ module.exports = class Product {
     // This method saves the product array to the file
     async save() {
         const products = await Product.#loadData();
-        products.push(this);
+
+        if(this.id){
+            const existingProductIndex = products.findIndex(p => p.id === this.id);
+            products[existingProductIndex] = this;
+        } else {
+            this.id = Math.random().toString();
+            products.push(this);
+        }
+
         fsPromises.writeFile(Product.pathFile, JSON.stringify(products));
     }
 
