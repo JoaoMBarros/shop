@@ -1,11 +1,8 @@
-const fs = require('fs');
-const fsPromises = fs.promises;
-const path = require('path');
-
 const Cart = require('./cart');
 
+const db = require('../util/database');
+
 module.exports = class Product {
-    static pathFile = path.resolve('data', 'products.json');
 
     constructor(id, title, imageUrl, description, price) {
         this.id = id;
@@ -15,44 +12,20 @@ module.exports = class Product {
         this.price = price;
     }
 
-    // This is a private method that returns a promise with the data from the file
-    static async #loadData(){
-        const result = await fsPromises.readFile(Product.pathFile);
-        return JSON.parse(result); // This returns an array
-    }
-
     // This method saves the product array to the file
     async save() {
-        const products = await Product.#loadData();
-
-        if(this.id){
-            const existingProductIndex = products.findIndex(p => p.id === this.id);
-            products[existingProductIndex] = this;
-        } else {
-            this.id = Math.random().toString();
-            products.push(this);
-        }
-
-        fsPromises.writeFile(Product.pathFile, JSON.stringify(products));
+        return db.execute('INSERT INTO products (title, price, imageUrl, description) VALUES (?, ?, ?, ?)',
+            [this.title, this.price, this.imageUrl, this.description]);
     }
 
     // static method can be called without creating an instance of the class and returns all products
     static async fetchAll() {
-        let products = await Product.#loadData();
-        return products;
+        return db.execute('SELECT * FROM products');
     }
 
     static async findById(id) {
-        const products = await Product.#loadData();
-        return products.find(p => p.id === id);
     }
 
     static async deleteById(id) {
-        let products = await Product.#loadData();
-        const product = products.find(p => p.id === id);
-        products = products.filter(p => p.id !== id);
-        fsPromises.writeFile(Product.pathFile, JSON.stringify(products));
-        await Cart.deleteProduct(product.id, product.price);
-        return product;
     }
 }
