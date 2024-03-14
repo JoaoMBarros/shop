@@ -44,4 +44,12 @@ module.exports = class Product {
         const products = await Product.#loadData();
         return products.find(p => p.id === id);
     }
+
+    static async deleteById(id) {
+        let products = await Product.#loadData();
+        const product = products.find(p => p.id === id);
+        products = products.filter(p => p.id !== id);
+        fsPromises.writeFile(Product.pathFile, JSON.stringify(products));
+        return product;
+    }
 }

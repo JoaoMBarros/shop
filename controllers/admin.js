@@ -32,6 +32,12 @@ exports.postEditProduct = async (req, res, next) => {
     res.redirect('/admin/products');
 }
 
+exports.postDeleteProduct = async (req, res, next) => {
+    const id = req.body.id;
+    await Product.deleteById(id);
+    res.redirect('/admin/products');
+}
+
 exports.getProducts = async (req, res, next) => {
     const products = await Product.fetchAll();
     res.render('admin/products', {prods: products, pageTitle: 'Admin Products', path: '/admin/products'});
