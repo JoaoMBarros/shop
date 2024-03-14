@@ -76,7 +76,7 @@ module.exports = class Cart {
         }
     }
 
-    static async deleteProductById(id, productPrice) {
+    static async deleteProductFromCart(id, productPrice) {
         try {
             // Load the existing cart
             let cart = await Cart.#loadData();
@@ -105,5 +105,12 @@ module.exports = class Cart {
             } catch (error) {
             console.error('Error loading or saving cart data:', error);
         }
+
+        return id;
+    }
+
+    static async getCart(){
+        const products = await Cart.#loadData();
+        return products;
     }
 }

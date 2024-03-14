@@ -1,1 +1,26 @@
 extends ../layouts/main-layout.pug
+
+block styles
+    link(rel="stylesheet", href="/css/product.css")
+
+block content
+    main
+        if products.length > 0
+            .grid
+                each product in products
+                    article.card.product-item
+                        header.card__header
+                            h1.product__title #{product.productData.title} (#{product.qty}x)
+                            form(action="/cart-delete-item" method="POST")
+                                input(type="hidden", name="productId", value=product.productData.id)
+                                button.btn(type="submit") Delete
+                        .card__image
+                            img(src=product.productData.imageUrl, alt="A Book")
+                        .card__content
+                            h2.product__price #{product.productData.price}
+                            p.product__description #{product.productData.description}
+                        .card__actions
+                            a.btn(href="/products/" + product.productData.id) Details
+                            
+        else
+            h2 No products found.

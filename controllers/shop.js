@@ -7,6 +7,16 @@ exports.getProducts = async (req, res, next) => {
     res.render('shop/products-list', {prods: products, pageTitle: 'Shop', path: '/products'});
 }
 
+exports.getCart = async (req, res, next) => {
+    const cart = await Cart.getCart();
+    const cartProducts = [];
+    for (let product of cart.products) {
+        let prod = await Product.findById(product.id);
+        cartProducts.push({productData: prod, qty: product.qty});
+    }
+    res.render('shop/cart', {pageTitle: 'Your Cart', path: '/cart', products: cartProducts});
+}
+
 // Async function to get a product detail from the database with promises
 exports.getProductDetail = async (req, res, next) => {
     const productId = req.params.productId;
@@ -20,16 +30,19 @@ exports.getIndex = async (req, res, next) => {
     res.render('shop/index', {prods: products, pageTitle: 'Shop', path: '/'});
 }
 
-// Async function to get the cart page
-exports.getCart = (req, res, next) => {
-    res.render('shop/cart', {pageTitle: 'Your Cart', path: '/cart'});
-}
-
 // Async function to add a product to the cart
 exports.postCart = async (req, res, next) => {
     const productId = req.body.productId;
     const product = await Product.findById(productId);
     await Cart.addProduct(product.id, product.price);
+    res.redirect('/cart');
+}
+
+// Async function to delete a product from the cart
+exports.postCartDeleteProduct = async (req, res, next) => {
+    const productId = req.body.productId;
+    const product =  await Product.findById(productId);
+    await Cart.deleteProductFromCart(productId, product.price);
     res.redirect('/cart');
 }
 
