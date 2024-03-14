@@ -2,6 +2,8 @@ const fs = require('fs');
 const fsPromises = fs.promises;
 const path = require('path');
 
+const Cart = require('./cart');
+
 module.exports = class Product {
     static pathFile = path.resolve('data', 'products.json');
 
@@ -50,6 +52,7 @@ module.exports = class Product {
         const product = products.find(p => p.id === id);
         products = products.filter(p => p.id !== id);
         fsPromises.writeFile(Product.pathFile, JSON.stringify(products));
+        await Cart.deleteProduct(product.id, product.price);
         return product;
     }
 }

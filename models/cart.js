@@ -49,4 +49,61 @@ module.exports = class Cart {
             console.error('Error loading or saving cart data:', error);
         }
     }
+
+    static async deleteProduct(id, productPrice) {
+        try {
+            // Load the existing cart
+            let cart = await Cart.#loadData();
+        
+            // Handle case where no cart is found
+            if (!cart) {
+                console.warn(`Cart not found`);
+                return;
+            }
+            
+            // Find existing product in cart
+            const existingProductIndex = cart.products.findIndex(p => p.id === id);
+            const productQty = cart.products[existingProductIndex].qty;
+            cart.products = cart.products.filter(p => p.id !== id);
+            
+            // Update total price
+            cart.totalPrice = (cart.totalPrice || 0) - (+productPrice * productQty);
+        
+            // Save the updated cart
+            await Cart.save(cart);
+            } catch (error) {
+            console.error('Error loading or saving cart data:', error);
+        }
+    }
+
+    static async deleteProductById(id, productPrice) {
+        try {
+            // Load the existing cart
+            let cart = await Cart.#loadData();
+        
+            // Handle case where no cart is found
+            if (!cart) {
+                console.warn(`Cart not found`);
+                return;
+            }
+            
+            // Find existing product in cart
+            const existingProductIndex = cart.products.findIndex(p => p.id === id);
+            
+            if (existingProductIndex !== -1) {
+                cart.products[existingProductIndex].qty -= 1;
+                if (cart.products[existingProductIndex].qty === 0) {
+                    cart.products = cart.products.filter(p => p.id !== id);
+                }
+            }
+            
+            // Update total price
+            cart.totalPrice = (cart.totalPrice || 0) - +productPrice;
+        
+            // Save the updated cart
+            await Cart.save(cart);
+            } catch (error) {
+            console.error('Error loading or saving cart data:', error);
+        }
+    }
 }
