@@ -3,9 +3,9 @@ const Cart = require('../models/cart');
 
 // Async function to get all products from the database with promises (therefore, the use of async/await)
 exports.getProducts = async (req, res, next) => {
-    Product.fetchAll()
-        .then(([rows, fieldData]) => {
-            res.render('shop/products-list', {prods: rows, pageTitle: 'All Products', path: '/products'});
+    Product.findAll()
+        .then(products => {
+            res.render('shop/products-list', {prods: products, pageTitle: 'All Products', path: '/products'});
         });
 }
 
@@ -22,14 +22,14 @@ exports.getCart = async (req, res, next) => {
 // Async function to get a product detail from the database with promises
 exports.getProductDetail = async (req, res, next) => {
     const productId = req.params.productId;
-    const product = await Product.findById(productId);
-    res.render('shop/product-detail', {product: product, pageTitle: product.title, path: '/products'});
+    Product.findByPk(productId)
+        .then(product => {
+            res.render('shop/product-detail', {product: product, pageTitle: product.title, path: '/products'});
+        });
 }
 
 // Async function to get the index page with all products from the database with promises
 exports.getIndex = async (req, res, next) => {
-    const products = await Product.fetchAll();
-    res.render('shop/index', {prods: products, pageTitle: 'Shop', path: '/'});
 }
 
 // Async function to add a product to the cart

@@ -1,31 +1,27 @@
-const Cart = require('./cart');
+const Sequelize = require('sequelize');
 
-const db = require('../util/database');
+const sequelize = require('../util/database');
 
-module.exports = class Product {
-
-    constructor(id, title, imageUrl, description, price) {
-        this.id = id;
-        this.title = title;
-        this.imageUrl = imageUrl;
-        this.description = description;
-        this.price = price;
+const Product = sequelize.define('product', {
+    id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true
+    },
+    title: Sequelize.STRING,
+    price: {
+        type: Sequelize.DOUBLE,
+        allowNull: false
+    },
+    imageUrl: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    description: {
+        type: Sequelize.STRING,
+        allowNull: false
     }
+});
 
-    // This method saves the product array to the file
-    async save() {
-        return db.execute('INSERT INTO products (title, price, imageUrl, description) VALUES (?, ?, ?, ?)',
-            [this.title, this.price, this.imageUrl, this.description]);
-    }
-
-    // static method can be called without creating an instance of the class and returns all products
-    static async fetchAll() {
-        return db.execute('SELECT * FROM products');
-    }
-
-    static async findById(id) {
-    }
-
-    static async deleteById(id) {
-    }
-}
+module.exports = Product;

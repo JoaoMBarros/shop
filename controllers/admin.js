@@ -7,8 +7,10 @@ exports.getAddProduct = (req, res, next) => {
 exports.getEditProduct = async (req, res, next) => {
     const productId = req.params.productId;
     const editMode = req.query.edit;
-    let product = await Product.findById(productId);
-    res.render('admin/edit-product', { pageTitle: 'Edit Product', path: '/admin/edit-product', editing: editMode, product: product });
+    Product.findByPk(productId)
+        .then(product => {
+            res.render('admin/edit-product', { pageTitle: 'Edit Product', path: '/admin/edit-product', editing: editMode, product: product });
+        });
 }
 
 exports.postAddProduct = (req, res, next) => {
@@ -16,11 +18,8 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
-    const product = new Product(null, title, imageUrl, description, price);
-    product.save()
-        .then(() => {
-            res.redirect('/products');})
-        .catch(err => console.log(err));
+    Product.create({title: title, price: price, imageUrl: imageUrl, description: description});
+    res.redirect('/admin/products');
 }
 
 exports.postEditProduct = async (req, res, next) => {
@@ -29,18 +28,37 @@ exports.postEditProduct = async (req, res, next) => {
     updatedImageUrl = req.body.imageUrl;
     updatedPrice = req.body.price;
     updatedDescription = req.body.description;
-    const updatedProduct = new Product(id, updatedTitle, updatedImageUrl, updatedDescription, updatedPrice);
-    await updatedProduct.save();
-    res.redirect('/admin/products');
+    Product.findByPk(id)
+        .then(product => {
+            product.title = updatedTitle;
+            product.imageUrl = updatedImageUrl;
+            product.price = updatedPrice;
+            product.description = updatedDescription;
+            return product.save();
+        })
+
+        // This .then block is executed after the product.save() promise is resolved
+        .then(result => {
+            res.redirect('/admin/products');
+        });
+
+    
 }
 
 exports.postDeleteProduct = async (req, res, next) => {
     const id = req.body.id;
-    await Product.deleteById(id);
-    res.redirect('/admin/products');
+    Product.findByPk(id)
+        .then(product => {
+            return product.destroy();
+        })
+        .then(result => {
+            res.redirect('/admin/products');
+        });
 }
 
 exports.getProducts = async (req, res, next) => {
-    const products = await Product.fetchAll();
-    res.render('admin/products', {prods: products, pageTitle: 'Admin Products', path: '/admin/products'});
+    Product.findAll()
+        .then(products => {
+            res.render('admin/products', {prods: products, pageTitle: 'Admin Products', path: '/admin/products'});
+        });
 }
