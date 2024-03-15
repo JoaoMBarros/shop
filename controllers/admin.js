@@ -18,8 +18,10 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
-    Product.create({title: title, price: price, imageUrl: imageUrl, description: description});
-    res.redirect('/admin/products');
+    req.user.createProduct({title: title, price: price, imageUrl: imageUrl, description: description})
+        .then(result => {
+            res.redirect('/admin/products');
+    });
 }
 
 exports.postEditProduct = async (req, res, next) => {
@@ -41,8 +43,6 @@ exports.postEditProduct = async (req, res, next) => {
         .then(result => {
             res.redirect('/admin/products');
         });
-
-    
 }
 
 exports.postDeleteProduct = async (req, res, next) => {
