@@ -93,9 +93,23 @@ exports.postCart = async (req, res, next) => {
 // Async function to delete a product from the cart
 exports.postCartDeleteProduct = async (req, res, next) => {
     const productId = req.body.productId;
-    const product =  await Product.findById(productId);
-    await Cart.deleteProductFromCart(productId, product.price);
-    res.redirect('/cart');
+    user = req.user;
+
+    try{
+        // Fetch the product from the cart
+        const cart =  await user.getCart();
+
+        let product = await cart.getProducts({where: {id: productId}});
+
+        // Delete the product from the cartItem table
+        await product[0].cartItem.destroy();
+
+        res.redirect('/cart');
+    } catch (error) {
+        console.error('Error deleting product from cart:', error);
+
+        res.status(500).send({ error: 'An error occurred while processing your request.' });
+    }
 }
 
 // Async function to get the orders page

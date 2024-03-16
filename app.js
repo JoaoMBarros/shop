@@ -56,7 +56,9 @@ sequelize.sync()
         return user;
     })
     .then(user => {
-        return user.createCart();
+        if (!user.getCart()) {
+            return user.createCart();
+        }
     })
     .then(cart => {
         app.listen(3000);
