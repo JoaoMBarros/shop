@@ -1,6 +1,4 @@
 const Product = require('../models/product');
-const Cart = require('../models/cart');
-const CartItem = require('../models/cart-item');
 
 // Async function to get all products from the database with promises (therefore, the use of async/await)
 exports.getProducts = async (req, res, next) => {
@@ -112,9 +110,47 @@ exports.postCartDeleteProduct = async (req, res, next) => {
     }
 }
 
+exports.postOrder = async (req, res, next) => {
+    const user = req.user;
+
+    try{
+        const cart = await user.getCart();
+        const products = await cart.getProducts();
+        const order = await user.createOrder();
+
+        // Add the products to the order
+        await order.addProducts(products.map(product => {
+
+            // Set the orderItem quantity to the cartItem quantity
+            product.orderItem = { quantity: product.cartItem.quantity };
+
+            return product;
+        }));
+
+        // Clear the cart
+        await cart.setProducts(null);
+
+        res.redirect('/orders');
+
+    } catch (error) {
+        console.error('Error fetching products from cart:', error);
+        res.status(500).send({ error: 'An error occurred while processing your request.' });
+    }
+}
+
 // Async function to get the orders page
-exports.getOrders = (req, res, next) => {
-    res.render('shop/orders', {pageTitle: 'Your Orders', path: '/orders'});
+exports.getOrders = async (req, res, next) => {
+    const user = req.user;
+
+    try{
+        const orders = await user.getOrders( { include: ['products'] });
+
+
+        res.render('shop/orders', {pageTitle: 'Your Orders', path: '/orders', orders: orders});
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).send({ error: 'An error occurred while processing your request.' });
+    }
 }
 
 // Async function to get the checkout page
