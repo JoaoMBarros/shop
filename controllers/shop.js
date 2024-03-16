@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Cart = require('../models/cart');
+const CartItem = require('../models/cart-item');
 
 // Async function to get all products from the database with promises (therefore, the use of async/await)
 exports.getProducts = async (req, res, next) => {
