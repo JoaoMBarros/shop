@@ -10,7 +10,7 @@ exports.getEditProduct = async (req, res, next) => {
 
     try {
         // Find the product by its ID
-        let product = await Product.findByPk(productId);
+        const product = await Product.findById(productId);
 
         // If the product is not found, redirect to the home page
         if (!product) {
@@ -40,12 +40,10 @@ exports.postAddProduct = async (req, res, next) => {
 
     try {
         // Create a new product associated with the current user
-        await req.user.createProduct({
-            title: title,
-            price: price,
-            imageUrl: imageUrl,
-            description: description
-        });
+        let product = new Product(title, price, imageUrl, description);
+        
+        // Save the product to the database
+        await product.save();
 
         // Redirect the user to the /admin/products page
         res.redirect('/admin/products');
@@ -65,14 +63,7 @@ exports.postEditProduct = async (req, res, next) => {
     const updatedDescription = req.body.description;
 
     try {
-        // Find the product by its ID
-        let product = await Product.findByPk(id);
-
-        // Update the product's details
-        product.title = updatedTitle;
-        product.price = updatedPrice;
-        product.imageUrl = updatedImageUrl;
-        product.description = updatedDescription;
+        const product = new Product(updatedTitle, updatedPrice, updatedImageUrl, updatedDescription, id);
 
         // Save the updated product to the database
         await product.save();
@@ -92,7 +83,7 @@ exports.postDeleteProduct = async (req, res, next) => {
 
     try {
         // Find the product by its ID and delete it
-        await Product.findByPk(id).then(product => product.destroy());
+        await Product.deleteById(id);
 
         // Redirect the user to the /admin/products page
         res.redirect('/admin/products');
@@ -107,7 +98,7 @@ exports.postDeleteProduct = async (req, res, next) => {
 exports.getProducts = async (req, res, next) => {
     try {
         // Fetch all products associated with the current user
-        let products = await req.user.getProducts();
+        const products = await Product.fetchAll();
 
         res.render('admin/products', {prods: products, pageTitle: 'Admin Products', path: '/admin/products'});
     } catch (error) {

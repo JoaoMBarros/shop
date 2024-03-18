@@ -4,7 +4,7 @@ const Product = require('../models/product');
 exports.getProducts = async (req, res, next) => {
     try {
         // Fetch all products from the database
-        let products = await Product.findAll();
+        const products = await Product.fetchAll();
     
         // Render the 'shop/product-list' view with the products and additional data
         res.render('shop/product-list', {
@@ -40,7 +40,7 @@ exports.getProductDetail = async (req, res, next) => {
     const productId = req.params.productId;
 
     try {
-        let product = await Product.findByPk(productId);
+        const product = await Product.findById(productId);
 
         res.render('shop/product-detail', {product: product, pageTitle: product.title, path: '/products'});
 
