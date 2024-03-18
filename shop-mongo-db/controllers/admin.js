@@ -33,6 +33,7 @@ exports.getEditProduct = async (req, res, next) => {
 }
 
 exports.postAddProduct = async (req, res, next) => {
+    const user = req.user;
     const title = req.body.title;
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
@@ -40,7 +41,7 @@ exports.postAddProduct = async (req, res, next) => {
 
     try {
         // Create a new product associated with the current user
-        let product = new Product(title, price, imageUrl, description);
+        let product = new Product(title, price, imageUrl, description, null, user._id);
         
         // Save the product to the database
         await product.save();

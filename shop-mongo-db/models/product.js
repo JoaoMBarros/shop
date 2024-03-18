@@ -2,12 +2,13 @@ const mongodb = require('mongodb');
 const getDb = require('../util/database').getDb;
 
 class Product {
-    constructor(title, price, imageUrl, description, id) {
+    constructor(title, price, imageUrl, description, id, userId) {
         this.title = title;
         this.price = price;
         this.imageUrl = imageUrl;
         this.description = description;
         this._id = id ? new mongodb.ObjectId(id) : null;
+        this.userId = new mongodb.ObjectId(userId);
     }
 
     async save() {
@@ -35,7 +36,7 @@ class Product {
         const db = getDb();
 
         // The next() method returns the next document from the cursor that the find() method returns
-        return db.collection('products').find({ _id: new mongodb.ObjectId(productId) }).next();
+        return db.collection('products').findOne({ _id: new mongodb.ObjectId(productId) });
     }
 
     static async deleteById(productId) {
