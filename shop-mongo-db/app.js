@@ -18,7 +18,7 @@ app.use(express.static('public'));
 
 app.use(async (req, res, next) => {
     const user = await User.findById('65f7b3330627aa72c86b4604')
-    req.user = user
+    req.user = new User(user.name, user.email, user.cart, user._id);
     next()
 });
 
