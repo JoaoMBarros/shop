@@ -10,17 +10,17 @@ block content
                 each product in products
                     article.card.product-item
                         header.card__header
-                            h1.product__title #{product.title} (#{product.quantity}x)
+                            h1.product__title #{product.productId.title} (#{product.quantity}x)
                             form(action="/cart-delete-item" method="POST")
-                                input(type="hidden", name="productId", value=product._id)
+                                input(type="hidden", name="productId", value=product.productId._id)
                                 button.btn(type="submit") Delete
                         .card__image
-                            img(src=product.imageUrl, alt="A Book")
+                            img(src=product.productId.imageUrl, alt="A Book")
                         .card__content
-                            h2.product__price #{product.price}
-                            p.product__description #{product.description}
+                            h2.product__price #{product.productId.price}
+                            p.product__description #{product.productId.description}
                         .card__actions
-                            a.btn(href="/products/" + product._id) Details
+                            a.btn(href="/products/" + product.productId._id) Details
         
             .centered
                 form(action="/create-order" method="POST")

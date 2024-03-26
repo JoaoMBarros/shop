@@ -9,7 +9,7 @@ exports.getIndex = async (req, res, next) => {
 exports.getProducts = async (req, res, next) => {
     try {
         // Fetch all products from the database
-        const products = await Product.fetchAll();
+        const products = await Product.find();
     
         // Render the 'shop/product-list' view with the products and additional data
         res.render('shop/product-list', {
@@ -47,8 +47,9 @@ exports.getProductDetail = async (req, res, next) => {
 exports.getCart = async (req, res, next) => {
 
     try {
-        const userCartProducts = await req.user.getCartProducts();
-
+        // Fetch the user's cart and populate the products
+        await req.user.populate('cart.items.productId');
+        const userCartProducts = req.user.cart.items;
         res.render('shop/cart', { path: '/cart', pageTitle: 'Your Cart', products: userCartProducts });
 
     } catch (error) {
@@ -63,8 +64,9 @@ exports.postCart = async (req, res, next) => {
 
     try {
         const product = await Product.findById(productId);
-
+        
         await req.user.addToCart(product);
+        
 
         res.redirect('/cart');
 
@@ -82,12 +84,7 @@ exports.postCartDeleteProduct = async (req, res, next) => {
 
     try{
         // Fetch the product from the cart
-        const cart =  await user.getCart();
-
-        let product = await cart.getProducts({where: {id: productId}});
-
-        // Delete the product from the cartItem table
-        await product[0].cartItem.destroy();
+        await user.removeFromCart(productId);
 
         res.redirect('/cart');
     } catch (error) {
@@ -102,7 +99,7 @@ exports.getOrders = async (req, res, next) => {
     const user = req.user;
 
     try{
-        const orders = await user.getOrders( { include: ['products'] });
+        const orders = await user.getOrders();
 
 
         res.render('shop/orders', {pageTitle: 'Your Orders', path: '/orders', orders: orders});
@@ -117,21 +114,7 @@ exports.postOrder = async (req, res, next) => {
     const user = req.user;
 
     try{
-        const cart = await user.getCart();
-        const products = await cart.getProducts();
-        const order = await user.createOrder();
-
-        // Add the products to the order
-        await order.addProducts(products.map(product => {
-
-            // Set the orderItem quantity to the cartItem quantity
-            product.orderItem = { quantity: product.cartItem.quantity };
-
-            return product;
-        }));
-
-        // Clear the cart
-        await cart.setProducts(null);
+        const order = await user.addOrder();
 
         res.redirect('/orders');
 

@@ -41,7 +41,7 @@ exports.postAddProduct = async (req, res, next) => {
 
     try {
         // Create a new product associated with the current user
-        let product = new Product(title, price, imageUrl, description, null, user._id);
+        let product = new Product({title: title, price: price, imageUrl: imageUrl, description: description, userId: user});
         
         // Save the product to the database
         await product.save();
@@ -64,7 +64,14 @@ exports.postEditProduct = async (req, res, next) => {
     const updatedDescription = req.body.description;
 
     try {
-        const product = new Product(updatedTitle, updatedPrice, updatedImageUrl, updatedDescription, id);
+        // Find the product by its ID
+        let product = await Product.findById(id);
+
+        // Update the product details
+        product.title = updatedTitle;
+        product.price = updatedPrice;
+        product.imageUrl = updatedImageUrl;
+        product.description = updatedDescription;
 
         // Save the updated product to the database
         await product.save();
@@ -84,7 +91,7 @@ exports.postDeleteProduct = async (req, res, next) => {
 
     try {
         // Find the product by its ID and delete it
-        await Product.deleteById(id);
+        await Product.findByIdAndDelete(id);
 
         // Redirect the user to the /admin/products page
         res.redirect('/admin/products');
@@ -99,7 +106,7 @@ exports.postDeleteProduct = async (req, res, next) => {
 exports.getProducts = async (req, res, next) => {
     try {
         // Fetch all products associated with the current user
-        const products = await Product.fetchAll();
+        const products = await Product.find();
 
         res.render('admin/products', {prods: products, pageTitle: 'Admin Products', path: '/admin/products'});
     } catch (error) {

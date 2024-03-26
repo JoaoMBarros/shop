@@ -1,49 +1,79 @@
-const mongodb = require('mongodb');
-const getDb = require('../util/database').getDb;
+const mongoose = require('mongoose');
 
-class Product {
-    constructor(title, price, imageUrl, description, id, userId) {
-        this.title = title;
-        this.price = price;
-        this.imageUrl = imageUrl;
-        this.description = description;
-        this._id = id ? new mongodb.ObjectId(id) : null;
-        this.userId = new mongodb.ObjectId(userId);
+const Schema = mongoose.Schema;
+
+const productSchema = new Schema({
+    title: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true
+    },
+    imageUrl: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
+});
 
-    async save() {
-        const db = getDb();
-        let dbOperation;
-        if (this._id){
-            // Update the product
-            dbOperation = db.collection('products').updateOne({ _id: this._id }, { $set: this });
-        } else {
-            // Insert the product
-            dbOperation = db.collection('products').insertOne(this);
-        }
+module.exports = mongoose.model('Product', productSchema);
 
-        return dbOperation;
-    }
+// const mongodb = require('mongodb');
+// const getDb = require('../util/database').getDb;
 
-    static async fetchAll() {
-        const db = getDb();
+// class Product {
+//     constructor(title, price, imageUrl, description, id, userId) {
+//         this.title = title;
+//         this.price = price;
+//         this.imageUrl = imageUrl;
+//         this.description = description;
+//         this._id = id ? new mongodb.ObjectId(id) : null;
+//         this.userId = new mongodb.ObjectId(userId);
+//     }
 
-        // The toArray() method returns a promise that resolves with an array of all the documents from the cursor
-        return db.collection('products').find().toArray();
-    }
+//     async save() {
+//         const db = getDb();
+//         let dbOperation;
+//         if (this._id){
+//             // Update the product
+//             dbOperation = db.collection('products').updateOne({ _id: this._id }, { $set: this });
+//         } else {
+//             // Insert the product
+//             dbOperation = db.collection('products').insertOne(this);
+//         }
 
-    static async findById(productId) {
-        const db = getDb();
+//         return dbOperation;
+//     }
 
-        // The next() method returns the next document from the cursor that the find() method returns
-        return db.collection('products').findOne({ _id: new mongodb.ObjectId(productId) });
-    }
+//     static async fetchAll() {
+//         const db = getDb();
 
-    static async deleteById(productId) {
-        const db = getDb();
+//         // The toArray() method returns a promise that resolves with an array of all the documents from the cursor
+//         return db.collection('products').find().toArray();
+//     }
 
-        return db.collection('products').deleteOne({ _id: new mongodb.ObjectId(productId) });
-    }
-}
+//     static async findById(productId) {
+//         const db = getDb();
 
-module.exports = Product;
+//         // The next() method returns the next document from the cursor that the find() method returns
+//         return db.collection('products').findOne({ _id: new mongodb.ObjectId(productId) });
+//     }
+
+//     static async deleteById(productId) {
+//         const db = getDb();
+
+//         return db.collection('products').deleteOne({ _id: new mongodb.ObjectId(productId) });
+//     }
+// }
+
+// module.exports = Product;

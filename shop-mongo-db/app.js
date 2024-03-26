@@ -4,7 +4,7 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/error');
-const mongoConnect = require('./util/database');
+const mongoose = require('mongoose');
 
 const User = require('./models/user');
 
@@ -17,8 +17,8 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 app.use(async (req, res, next) => {
-    const user = await User.findById('65f7b3330627aa72c86b4604')
-    req.user = new User(user.name, user.email, user.cart, user._id);
+    const user = await User.findOne();
+    req.user = user;
     next()
 });
 
@@ -30,8 +30,20 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(errorController.get404);
 
-const db = mongoConnect.run();
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
+mongoose.connect('mongodb+srv://joao:lECi55T9DuX2XRaz@cluster0.a2iix0j.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0')
+    .then(() => {
+        User.findOne().then(user => {
+            if (!user) {
+                const user = new User({
+                    name: 'Joao',
+                    email: 'joao@email.com',
+                    cart: {
+                        items: []
+                    }
+                });
+                user.save();
+            }
+        });
+        app.listen(3000);
+        console.log('Connected to MongoDB and listening on port 3000');
+    });
