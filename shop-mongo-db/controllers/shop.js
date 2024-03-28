@@ -1,5 +1,5 @@
 const Product = require('../models/product');
-
+const Order = require('../models/order');
 
 // Async function to get the index page with all products from the database with promises
 exports.getIndex = async (req, res, next) => {
@@ -97,10 +97,8 @@ exports.postCartDeleteProduct = async (req, res, next) => {
 // Async function to get the orders page
 exports.getOrders = async (req, res, next) => {
     const user = req.user;
-
     try{
-        const orders = await user.getOrders();
-
+        const orders = await Order.find({'user.userId' : user._id});
 
         res.render('shop/orders', {pageTitle: 'Your Orders', path: '/orders', orders: orders});
     } catch (error) {
@@ -111,10 +109,25 @@ exports.getOrders = async (req, res, next) => {
 
 // Async function to post an order
 exports.postOrder = async (req, res, next) => {
-    const user = req.user;
-
     try{
-        const order = await user.addOrder();
+        const user = req.user;
+        await req.user.populate('cart.items.productId');
+        const userCartProducts = req.user.cart.items;
+
+
+        const order = new Order({
+            user: {
+                name: user.name,
+                userId: user
+            },
+            products: userCartProducts.map(product => {
+                return {product: {...product.productId._doc}, quantity: product.quantity};
+            })
+        });
+
+        await order.save();
+
+        await user.clearCart();
 
         res.redirect('/orders');
 

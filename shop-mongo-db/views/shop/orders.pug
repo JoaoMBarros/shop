@@ -12,9 +12,9 @@ block content
                     li
                         h1 #{order.id}
                         ul
-                            each product in order.items
+                            each product in order.products
                                 li
-                                    h2 #{product.title} (#{product.quantity})
+                                    h2 #{product.product.title} (#{product.quantity})
 
         else
             h2 No products found.

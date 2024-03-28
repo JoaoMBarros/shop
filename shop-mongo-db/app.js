@@ -2,6 +2,7 @@ const express = require('express');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 
 const errorController = require('./controllers/error');
 const mongoose = require('mongoose');
@@ -28,6 +29,7 @@ app.get('/favicon.ico', (req, res, next) => {
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose.connect('mongodb+srv://joao:lECi55T9DuX2XRaz@cluster0.a2iix0j.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0')
