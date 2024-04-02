@@ -15,7 +15,8 @@ exports.getProducts = async (req, res, next) => {
         res.render('shop/product-list', {
             prods: products,
             pageTitle: 'All Products',
-            path: '/products'
+            path: '/products',
+            isLoggedIn: req.isLoggedIn
         });
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -32,7 +33,7 @@ exports.getProductDetail = async (req, res, next) => {
     try {
         const product = await Product.findById(productId);
 
-        res.render('shop/product-detail', {product: product, pageTitle: product.title, path: '/products'});
+        res.render('shop/product-detail', {product: product, pageTitle: product.title, path: '/products', isLoggedIn: req.isLoggedIn});
 
     } catch (error) {
         console.error('Error fetching product:', error);
@@ -50,7 +51,7 @@ exports.getCart = async (req, res, next) => {
         // Fetch the user's cart and populate the products
         await req.user.populate('cart.items.productId');
         const userCartProducts = req.user.cart.items;
-        res.render('shop/cart', { path: '/cart', pageTitle: 'Your Cart', products: userCartProducts });
+        res.render('shop/cart', { path: '/cart', pageTitle: 'Your Cart', products: userCartProducts, isLoggedIn: req.isLoggedIn });
 
     } catch (error) {
         console.error('Error fetching cart:', error);
@@ -100,7 +101,7 @@ exports.getOrders = async (req, res, next) => {
     try{
         const orders = await Order.find({'user.userId' : user._id});
 
-        res.render('shop/orders', {pageTitle: 'Your Orders', path: '/orders', orders: orders});
+        res.render('shop/orders', {pageTitle: 'Your Orders', path: '/orders', orders: orders, isLoggedIn: req.isLoggedIn});
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.status(500).send({ error: 'An error occurred while processing your request.' });

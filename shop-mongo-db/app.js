@@ -6,6 +6,8 @@ const authRoutes = require('./routes/auth');
 
 const errorController = require('./controllers/error');
 const mongoose = require('mongoose');
+const cookieParser = require("cookie-parser");
+const session = require('express-session');
 
 const User = require('./models/user');
 
@@ -16,6 +18,9 @@ app.set('view engine', 'pug');
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
+app.use(cookieParser());
+
+app.use(session({secret: 'my secret', resave: false, saveUninitialized: false}));
 
 app.use(async (req, res, next) => {
     const user = await User.findOne();

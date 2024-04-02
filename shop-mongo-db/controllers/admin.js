@@ -22,7 +22,8 @@ exports.getEditProduct = async (req, res, next) => {
             pageTitle: 'Edit Product',
             path: '/admin/edit-product',
             editing: editMode,
-            product: product
+            product: product,
+            isLoggedIn: req.isLoggedIn,
         });
     } catch (error) {
         console.error('Error fetching product:', error);
@@ -108,7 +109,7 @@ exports.getProducts = async (req, res, next) => {
         // Fetch all products associated with the current user
         const products = await Product.find();
 
-        res.render('admin/products', {prods: products, pageTitle: 'Admin Products', path: '/admin/products'});
+        res.render('admin/products', {prods: products, pageTitle: 'Admin Products', path: '/admin/products', isLoggedIn: req.isLoggedIn});
     } catch (error) {
         console.error('Error fetching products:', error);
         
